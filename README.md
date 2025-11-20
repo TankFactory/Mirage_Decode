@@ -8,7 +8,7 @@
 
 ### 备用链接
 
--   新版 - Cloudflare Pages 部署 - [prism.penyanide.workers.dev](https://prism.penyanide.workers.dev)
+-   新版 - Cloudflare Pages 部署 - [prism-56x.pages.dev](https://prism-56x.pages.dev)
 -   旧版  - [prism-old.uyanide.com](https://prism-old.uyanide.com)
 -   旧版 - [单页面版本下载](https://api.uyanide.com/prism_page)
 -   <s>新版 - [单页面版本下载](https://www.bilibili.com/video/BV1GJ411x7h7/)</s> (目前并不存在这种东西 🥲)
