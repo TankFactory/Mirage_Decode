@@ -269,7 +269,9 @@ export class EncodeResultCanvas extends PrismCanvas {
   }
 
   async saveResult(format: ImageEncodeFormat) {
-    const encoded = await this.encodeImageFile(this.resultData, format);
+    const { innerThreshold, innerContrast, isReverse } = usePrismEncodeStore.getState();
+    const metadata = ImageProcess.encodePreset(innerThreshold, innerContrast, isReverse);
+    const encoded = await this.encodeImageFile(this.resultData, format, metadata);
     return this.saveImageFile(encoded, format);
   }
 
