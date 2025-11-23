@@ -11,6 +11,7 @@ import { version as appVersion } from '../../package.json';
 import { changeLog } from '../constants/change-log';
 import { zIndex } from '../constants/layout';
 import { useDesktopModeInitializer, useSmallScreen } from '../providers/layout';
+import { CommonDivider } from '../components/divider';
 
 export function MainScreen() {
   useDesktopModeInitializer();
@@ -30,6 +31,7 @@ export function MainScreen() {
       sx={{
         display: 'flex',
         flexDirection: 'column',
+        alignItems: 'center',
         backgroundColor: palette.Background,
         minHeight: '100vh',
         gap: 2,
@@ -71,7 +73,9 @@ export function MainScreen() {
       <TopLinks />
       <MainContent />
       <VersionInfo />
+      <CommonDivider width="min(100%, 600px)" />
       <BottomLinks />
+      <CommonDivider width="min(100%, 600px)" />
       <ChangeHistory />
     </Box>
   );
@@ -133,7 +137,6 @@ function VersionInfo() {
       <Typography variant="body1">
         当前版本: <strong>{appVersion}</strong>
       </Typography>
-      <Typography variant="body2">如发现有功能不正常可手动清理浏览器缓存后刷新</Typography>
     </Box>
   );
 }
@@ -151,7 +154,7 @@ function BottomLinks() {
       }}
     >
       <Typography variant="body2">
-        <Link href="https://github.com/Uyanide/Mirage_Decode?tab=readme-ov-file#qa" target="_blank" rel="noopener">
+        <Link href="https://github.com/TankFactory/Mirage_Decode?tab=readme-ov-file#qa" target="_blank" rel="noopener">
           常见问题 Q&A
         </Link>
       </Typography>
@@ -170,7 +173,7 @@ function BottomLinks() {
       </Typography>
       <Box margin={0.5} />
       <Typography variant="body2">
-        <Link href="https://github.com/Uyanide/Mirage_Decode/issues/new" target="_blank" rel="noopener">
+        <Link href="https://github.com/TankFactory/Mirage_Decode/issues/new" target="_blank" rel="noopener">
           Bug 或建议
         </Link>{' '}
         有问必答 <s>欢迎拷打</s>
@@ -181,7 +184,7 @@ function BottomLinks() {
         </Link>
       </Typography>
       <Typography variant="body2">
-        <Link href="https://github.com/Uyanide/Mirage_Decode" target="_blank" rel="noopener">
+        <Link href="https://github.com/TankFactory/Mirage_Decode" target="_blank" rel="noopener">
           Github - Mirage_Decode (本项目仓库)
         </Link>
       </Typography>
