@@ -1,7 +1,7 @@
 {
   "name": "web",
   "private": true,
-  "version": "2.1.5",
+  "version": "2.1.6",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -16,7 +16,7 @@
     "@mui/material": "^7.3.1",
     "@types/file-saver": "^2.0.7",
     "file-saver": "^2.0.5",
-    "immer": "^10.1.1",
+    "immer": "^11.0.1",
     "jpeg-js": "^0.4.4",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
@@ -29,12 +29,12 @@
     "@types/react-dom": "^19.1.7",
     "@vitejs/plugin-react": "^5.0.0",
     "eslint": "^9.33.0",
-    "eslint-plugin-react-dom": "^1.52.3",
-    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-dom": "^2.3.12",
+    "eslint-plugin-react-hooks": "^7.0.0",
     "eslint-plugin-react-refresh": "^0.4.20",
-    "eslint-plugin-react-x": "^1.52.3",
+    "eslint-plugin-react-x": "^2.3.12",
     "globals": "^16.3.0",
-    "typescript": "~5.8.3",
+    "typescript": "~5.9.3",
     "typescript-eslint": "^8.39.1",
     "vite": "^7.1.5"
   }
