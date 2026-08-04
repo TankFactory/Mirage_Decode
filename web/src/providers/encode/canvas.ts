@@ -192,28 +192,33 @@ export class EncodeResultCanvas extends PrismCanvas {
 
   setCoverImage(image: PrismImage) {
     this.cover.setImage(image, false);
+    this.resize();
     if (!this.inner.hasImage()) {
-      this.cover.putImageData(this.cover.srcData);
       return;
     }
-    this.resize();
     this.encodeResult();
   }
 
   // 1. resize inner image to avoid exceeding maxSize
   // 2. resize cover image to have the exact same size as inner image
+  // Both branches must run resizeFit/adjust even when the other image is still
+  // missing, otherwise adjustedData stays null and the contrast/gray
+  // subscriptions below blank the preview out.
   resize() {
-    if (!this.inner.hasImage()) {
-      return;
+    if (this.inner.hasImage()) {
+      this.inner.resizeFit();
+      this.inner.adjust();
+      this.inner.putImageData(this.inner.adjustedData);
     }
-    this.inner.resizeFit();
-    this.inner.adjust();
-    this.inner.putImageData(this.inner.adjustedData);
     if (!this.cover.hasImage()) {
       return;
     }
-    const { width, height } = this.inner.getSize();
-    this.cover.resizeCover(width, height);
+    if (this.inner.hasImage()) {
+      const { width, height } = this.inner.getSize();
+      this.cover.resizeCover(width, height);
+    } else {
+      this.cover.resizeFit();
+    }
     this.cover.adjust();
     this.cover.putImageData(this.cover.adjustedData);
   }
@@ -263,8 +268,7 @@ export class EncodeResultCanvas extends PrismCanvas {
     };
 
     ImageProcess.prismEncode(inner, cover, result, config);
-    this.resultData.v = result;
-    usePrismEncodeImageStore.getState().haveResult = true;
+    usePrismEncodeImageStore.getState().setHaveResult(true);
     this.putImageData(this.resultData);
   }
 

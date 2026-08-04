@@ -2,9 +2,11 @@ import type { Ptr } from '../../../utils/general';
 import { ImageUtils, type ImageCommonService, type ToGrayAlgo } from '../../image-process';
 import { type WebGLProcessConstructor } from './helper';
 
+// locations must be explicit: _initVAO hardcodes 0/1, and the linker is not
+// required to assign them in declaration order
 const passthroughVS = `#version 300 es
-in vec2 a_position;
-in vec2 a_texCoord;
+layout(location = 0) in vec2 a_position;
+layout(location = 1) in vec2 a_texCoord;
 out vec2 v_texCoord;
 void main() {
   gl_Position = vec4(a_position, 0.0, 1.0);
@@ -12,6 +14,9 @@ void main() {
 }
 `;
 
+// mediump is deliberate for the three shaders below, unlike encode/decode:
+// these only feed the on-screen preview, where being off by one gray level is
+// invisible, and mediump is cheaper on mobile
 const toGrayFS = `#version 300 es
 precision mediump float;
 in vec2 v_texCoord;
@@ -102,6 +107,11 @@ export function WebGLCommonProcess<TBase extends WebGLProcessConstructor>(Base: 
 
       if (!useCache) {
         this._gl.deleteFramebuffer(framebuffer);
+      }
+      // 'resize' doubles as the tar-texture cache flag above; without it the
+      // texture belongs to nobody and would be left to the GC
+      if (!resize) {
+        this._gl.deleteTexture(texOutput);
       }
     }
 

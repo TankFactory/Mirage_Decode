@@ -63,10 +63,19 @@ export const LoadImageFileData = {
     }
   },
 
-  async _rasePromise(promises: Promise<Uint8Array | null>[]) {
+  // resolves with the first non-null result, or [] once every promise has failed
+  async _racePromise(promises: Promise<Uint8Array | null>[]) {
+    if (promises.length === 0) {
+      return [];
+    }
     return new Promise<Uint8Array[]>((rs) => {
-      let resolvedCount = 0;
-      const totalPromises = promises.length;
+      let settledCount = 0;
+      const countOut = () => {
+        settledCount++;
+        if (settledCount === promises.length) {
+          rs([]);
+        }
+      };
 
       promises.forEach((promise) => {
         promise
@@ -75,17 +84,9 @@ export const LoadImageFileData = {
               rs([buffer]);
               return;
             }
-            resolvedCount++;
-            if (resolvedCount === totalPromises) {
-              rs([]);
-            }
+            countOut();
           })
-          .catch(() => {
-            resolvedCount++;
-            if (resolvedCount === totalPromises) {
-              rs([]);
-            }
-          });
+          .catch(countOut);
       });
     });
   },
@@ -117,7 +118,7 @@ export const LoadImageFileData = {
 
         if (!multi) {
           const promises = Array.from(clipboardItems).map(parseSingleItem);
-          rs(await LoadImageFileData._rasePromise(promises));
+          rs(await LoadImageFileData._racePromise(promises));
         } else {
           const promises = Array.from(clipboardItems).map(parseSingleItem);
           const res = (await Promise.all(promises)).filter((buffer) => buffer !== null);
@@ -237,7 +238,7 @@ export const LoadImageFileData = {
               rj(constructError(error));
             });
         } else {
-          rs(await LoadImageFileData._rasePromise(promises));
+          rs(await LoadImageFileData._racePromise(promises));
         }
       })().catch((error: unknown) => {
         console.error('Error processing drop items:', error);

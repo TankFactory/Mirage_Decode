@@ -89,6 +89,11 @@ export class WebGLHelper {
     this._gl.attachShader(program, vs);
     this._gl.attachShader(program, fs);
     this._gl.linkProgram(program);
+    // the program keeps its own copy after linking, so the shaders can go now
+    this._gl.detachShader(program, vs);
+    this._gl.detachShader(program, fs);
+    this._gl.deleteShader(vs);
+    this._gl.deleteShader(fs);
     if (!this._gl.getProgramParameter(program, this._gl.LINK_STATUS)) {
       throw new Error(this._gl.getProgramInfoLog(program) ?? 'Unknown error linking program');
     }
@@ -128,13 +133,15 @@ export class WebGLHelper {
         if (cache.cachedData.length === data.length && width === cache.cacheWidth && height === cache.cacheHeight) {
           // comparing reference wont help here, since we have to compare the content anyway
           // compare content
+          let matches = true;
           for (let i = 0; i < data.length; i++) {
             if (cache.cachedData[i] !== data[i]) {
-              cache.cachedTex = null;
+              // note: don't drop the handle here, the block below still has to delete it
+              matches = false;
               break;
             }
           }
-          if (cache.cachedTex) {
+          if (matches) {
             return cache.cachedTex;
           }
         }
@@ -166,7 +173,8 @@ export class WebGLHelper {
   }
 
   // only enable cache if every pixel in returned texture will be written
-  // and true is returned as second element if cache is used
+  // and true is returned as second element if cache is used.
+  // when enableCache is false the texture is unowned -- the caller has to delete it
   _cacheTarWidth: number = 0;
   _cacheTarHeight: number = 0;
   _cacheTarTex: WebGLTexture | null = null;
@@ -204,10 +212,14 @@ export class WebGLHelper {
     return [tex, false];
   }
 
-  // when useCache is true, cached framebuffer will be returned if available
+  // when useCache is true, cached framebuffer will be returned if available.
+  // always returns a framebuffer that is bound and has 'tex' on COLOR_ATTACHMENT0 --
+  // callers must not have to remember to bind it themselves
   _cacheFrameBuffer: WebGLFramebuffer | null = null;
   _createFramebuffer(tex: WebGLTexture, useCache: boolean): WebGLFramebuffer {
     if (this._cacheFrameBuffer && useCache) {
+      this._gl.bindFramebuffer(this._gl.FRAMEBUFFER, this._cacheFrameBuffer);
+      this._gl.framebufferTexture2D(this._gl.FRAMEBUFFER, this._gl.COLOR_ATTACHMENT0, this._gl.TEXTURE_2D, tex, 0);
       return this._cacheFrameBuffer;
     }
 

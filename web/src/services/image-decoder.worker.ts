@@ -41,6 +41,7 @@ self.onmessage = (event) => {
     case 'init':
       if (isInited) {
         postMessage({ success: true, payload: { decoderCount: decoders.length } } satisfies ImageDecodeDataInit);
+        return;
       }
       if (ImageDecoderImageDecoderImpl.isAvailable()) {
         try {
@@ -58,6 +59,7 @@ self.onmessage = (event) => {
       }
       if (decoders.length === 0) {
         postMessage({ success: false, error: 'No image decoder available' } satisfies ImageDecodeDataBase);
+        return;
       }
       isInited = true;
       postMessage({ success: true, payload: { decoderCount: decoders.length } } satisfies ImageDecodeDataInit);
@@ -65,6 +67,7 @@ self.onmessage = (event) => {
     case 'decode':
       if (!isInited) {
         postMessage({ success: false, id: data.id, error: 'Worker is not initialized' } satisfies ImageDecodeDataBase);
+        return;
       }
       messageQueue.push(data);
       if (!isProcessing) {

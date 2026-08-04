@@ -121,7 +121,7 @@ export function FallbackDecodeProcess<TBase extends FallbackProcessConstructor>(
     // 'values' should be constructed with default values
     // and will be modified if valid value is found in 'str'
     decodePreset(str: string, values: PrismDecodeConfig) {
-      if (str.length < 0) {
+      if (str.length === 0) {
         return false;
       }
       // 0 / 1

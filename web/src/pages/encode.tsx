@@ -135,7 +135,7 @@ function ImageInput({ isCover }: ImageConfigProps) {
         prismEncodeCanvas.unbindInner();
       }
     };
-  });
+  }, [isCover]);
 
   return (
     <Box

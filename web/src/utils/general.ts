@@ -11,12 +11,17 @@ export function binaryStringToUint8Array(binaryString: string): Uint8Array {
   }
   return uint8;
 }
+// Chunked rather than byte-by-byte.
+// Do NOT swap this for TextDecoder('latin1') -- that label decodes as
+// windows-1252 and rewrites 0x80-0x9F, silently corrupting the data.
 export function uint8ArrayToBinaryString(uint8: Uint8Array): string {
-  let str = '';
-  for (let i = 0; i < uint8.length; i++) {
-    str += String.fromCharCode(uint8[i]);
+  const chunkSize = 0x8000;
+  const parts: string[] = [];
+  for (let i = 0; i < uint8.length; i += chunkSize) {
+    // apply, not spread: spread goes through the iterator protocol and is ~6x slower
+    parts.push(String.fromCharCode.apply(null, uint8.subarray(i, i + chunkSize) as unknown as number[]));
   }
-  return str;
+  return parts.join('');
 }
 
 // why not?
@@ -32,11 +37,3 @@ export function nullPtr<T>(): Ptr<T> {
 // }
 // const obj: Ptr<ImageData> = { v: new ImageData(2, 2) };
 // foo(obj);
-
-export function generateUUID(): string {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-    const r = (Math.random() * 16) | 0;
-    const v = c === 'x' ? r : (r & 0x3) | 0x8;
-    return v.toString(16);
-  });
-}

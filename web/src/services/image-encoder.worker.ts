@@ -44,6 +44,7 @@ self.onmessage = (event) => {
           success: true,
           payload: { formats: Array.from(encoders.keys()) as ImageEncodeFormat[] },
         } satisfies ImageEncodeDataInit);
+        return;
       }
 
       try {
@@ -71,6 +72,7 @@ self.onmessage = (event) => {
     case 'encode':
       if (!isInited) {
         postMessage({ success: false, id: data.id, error: 'Worker is not initialized' } satisfies ImageEncodeDataBase);
+        return;
       }
       messageQueue.push(data);
       if (!isProcessing) {

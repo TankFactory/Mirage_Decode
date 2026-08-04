@@ -5,9 +5,10 @@ function scaleContrastExpand(value: number): number {
   return Math.max(Math.min(((value - 50) * 255) / 50, 255), -255);
 }
 
+// see common.ts: _initVAO hardcodes locations 0/1
 const passthroughVS = `#version 300 es
-in vec2 a_position;
-in vec2 a_texCoord;
+layout(location = 0) in vec2 a_position;
+layout(location = 1) in vec2 a_texCoord;
 out vec2 v_texCoord;
 
 void main() {
@@ -16,8 +17,9 @@ void main() {
 }
 `;
 
+// highp for the same reason as the encode shader: exact byte values matter
 const scaleFS = `#version 300 es
-precision mediump float;
+precision highp float;
 in vec2 v_texCoord;
 layout(location = 0) out vec4 outColor;
 layout(location = 1) out vec4 outMask;
@@ -52,7 +54,7 @@ void main() {
 `;
 
 const fillFS = `#version 300 es
-precision mediump float;
+precision highp float;
 in vec2 v_texCoord;
 uniform sampler2D u_image;
 uniform sampler2D u_mask;
@@ -275,7 +277,7 @@ export function WebGLDecodeProcess<TBase extends WebGLProcessConstructor>(Base: 
     // 'values' should be constructed with default values
     // and will be modified if valid value is found in 'str'
     decodePreset(str: string, values: PrismDecodeConfig) {
-      if (str.length < 0) {
+      if (str.length === 0) {
         return false;
       }
       // 0 / 1

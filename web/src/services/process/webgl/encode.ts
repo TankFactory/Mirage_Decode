@@ -5,9 +5,10 @@ function scaleContrastCompress(value: number): number {
   return Math.max(Math.min((value * 50) / 255 + 50, 100), 0);
 }
 
+// see common.ts: _initVAO hardcodes locations 0/1
 const passthroughVS = `#version 300 es
-in vec2 a_position;
-in vec2 a_texCoord;
+layout(location = 0) in vec2 a_position;
+layout(location = 1) in vec2 a_texCoord;
 out vec2 v_texCoord;
 
 void main() {
@@ -16,8 +17,10 @@ void main() {
 }
 `;
 
+// highp, not mediump: the encoded bytes are the product here, and mediump is
+// only 16-bit on mobile GPUs -- enough to land on the wrong byte after readPixels
 const encodeFS = `#version 300 es
-precision mediump float;
+precision highp float;
 
 uniform sampler2D u_innerImage;
 uniform sampler2D u_coverImage;
@@ -138,6 +141,9 @@ export function WebGLEncodeProcess<TBase extends WebGLProcessConstructor>(Base: 
       if (!useCache) {
         this._gl.deleteFramebuffer(fb);
       }
+      // both source textures were created with caching off, so they are ours to free
+      this._gl.deleteTexture(innerTex);
+      this._gl.deleteTexture(coverTex);
     }
 
     encodePreset(innerThreshold: number, contrast: number, isReverse: boolean) {
