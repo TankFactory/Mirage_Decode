@@ -3,13 +3,10 @@ import { init } from './init';
 import { LoadingOverlay } from './components/loading';
 import { MainScreen } from './pages/main-screen';
 import { useEffect, useState } from 'react';
-import { useThemeModeInitializer } from './providers/theme';
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 
 export default function App() {
   useDesktopModeInitializer();
-
-  useThemeModeInitializer();
 
   const [initializing, setInitializing] = useState(true);
   const [error, setError] = useState<string[] | null>(null);

@@ -100,10 +100,10 @@ export const useAdvancedEncodeConfigsStore = create<AdvancedEncodeConfigsStore>(
             case 'higherThreshold':
             case 'contrast':
             case 'weight':
-              state.configs[index][key] = Number(value) as never;
+              state.configs[index][key] = Number(value);
               break;
             case 'isGray':
-              state.configs[index][key] = Boolean(value) as never;
+              state.configs[index][key] = Boolean(value);
               break;
             default:
               break;

@@ -3,7 +3,8 @@ import type { ImageEncodeFormat } from './image-encoder';
 type ImageEncodeTaskType = 'encode' | 'init';
 
 export interface ImageEncodeDataBase {
-  id: string;
+  // absent on init responses, which are not tied to a request
+  id?: string;
   success: boolean;
   error?: string;
 }
@@ -16,7 +17,7 @@ export interface ImageEncodeDataInit extends ImageEncodeDataBase {
 
 export interface ImageEncodeDataResult extends ImageEncodeDataBase {
   payload: {
-    fileData: ArrayBuffer;
+    fileData: ArrayBufferLike;
   };
 }
 
@@ -42,7 +43,7 @@ self.onmessage = (event) => {
         postMessage({
           success: true,
           payload: { formats: Array.from(encoders.keys()) as ImageEncodeFormat[] },
-        } as ImageEncodeDataInit);
+        } satisfies ImageEncodeDataInit);
       }
 
       try {
@@ -65,11 +66,11 @@ self.onmessage = (event) => {
       postMessage({
         success: true,
         payload: { formats: Array.from(encoders.keys()) as ImageEncodeFormat[] },
-      } as ImageEncodeDataInit);
+      } satisfies ImageEncodeDataInit);
       break;
     case 'encode':
       if (!isInited) {
-        postMessage({ success: false, id: data.id, error: 'Worker is not initialized' } as ImageEncodeDataBase);
+        postMessage({ success: false, id: data.id, error: 'Worker is not initialized' } satisfies ImageEncodeDataBase);
       }
       messageQueue.push(data);
       if (!isProcessing) {
@@ -81,7 +82,7 @@ self.onmessage = (event) => {
               success: false,
               id: data.id,
               error: error instanceof Error ? error.message : 'Unknown error',
-            } as ImageEncodeDataBase);
+            } satisfies ImageEncodeDataBase);
           })
           .finally(() => {
             isProcessing = false;
@@ -96,12 +97,12 @@ async function processQueue() {
     const { id, payload } = messageQueue.shift()!;
     const encoder = encoders.get(payload.format);
     if (!encoder) {
-      postMessage({ success: false, id, error: `Encoder for format ${payload.format} not found` } as ImageEncodeDataBase);
+      postMessage({ success: false, id, error: `Encoder for format ${payload.format} not found` } satisfies ImageEncodeDataBase);
       continue;
     }
     try {
       const fileData = await encoder.encode(payload.imageData);
-      postMessage({ success: true, id, payload: { fileData: fileData.buffer } } as ImageEncodeDataResult, {
+      postMessage({ success: true, id, payload: { fileData: fileData.buffer } } satisfies ImageEncodeDataResult, {
         transfer: [fileData.buffer],
       });
     } catch (error) {
@@ -110,7 +111,7 @@ async function processQueue() {
         success: false,
         id,
         error: error instanceof Error ? error.message : 'Unknown error',
-      } as ImageEncodeDataBase);
+      } satisfies ImageEncodeDataBase);
     }
   }
 }

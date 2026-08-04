@@ -41,6 +41,9 @@ export async function initDecoderWorker() {
 
   worker.onmessage = (event) => {
     const data = event.data as ImageDecodeDataBase;
+    if (data.id === undefined) {
+      return;
+    }
     const handler = handlers[data.id];
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (handler) {
@@ -71,6 +74,6 @@ export async function decodeImage(fileData: Uint8Array): Promise<ImageData> {
         reject(new Error(data.error || 'Unknown error during image decoding'));
       }
     });
-    worker!.postMessage({ type: 'decode', id, payload: { fileData: fileData.buffer } } as ImageDecodeWorkerData);
+    worker!.postMessage({ type: 'decode', id, payload: { fileData: fileData.buffer } } satisfies ImageDecodeWorkerData);
   });
 }

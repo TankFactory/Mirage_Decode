@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ImageLoaderMulti } from '../components/image-loader-multi';
 import { DecodeDefaultArgs, defaultImages, EncodeDefaultArgs, maxContrast, minContrast } from '../constants/default-arg';
-import { usePrismDecodeImagesStore, usePrismDecodeStore, type PrismDecodeMethod } from '../providers/decode/state';
+import { usePrismDecodeImagesStore, usePrismDecodeStore } from '../providers/decode/state';
 import { PrismImage } from '../models/image';
 import { useSidebarStore } from '../providers/sidebar';
 import { Box, Button, Grid, MenuItem, Select, Slider, Typography } from '@mui/material';
@@ -334,7 +334,7 @@ function MethodsInput() {
           value={method}
           size="small"
           onChange={(e) => {
-            setMethod(e.target.value as PrismDecodeMethod);
+            setMethod(e.target.value);
           }}
         >
           <MenuItem value="ltavg">临近平均</MenuItem>

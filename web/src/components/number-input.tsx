@@ -13,18 +13,16 @@ type NumberInputProps = {
 
 export function NumberInput({ initValue, onChange, debounce = 200, min, max, ...rest }: NumberInputProps) {
   const [value, setValue] = useState(initValue.toString());
-  const [isValid, setIsValid] = useState(true);
   const debouncedValue = useDebounce(value, debounce);
 
+  const parsedValue = parseFloat(debouncedValue);
+  const isValid = !isNaN(parsedValue) && (min === undefined || parsedValue >= min) && (max === undefined || parsedValue <= max);
+
   useEffect(() => {
-    const parsedValue = parseFloat(debouncedValue);
-    if (!isNaN(parsedValue) && (min === undefined || parsedValue >= min) && (max === undefined || parsedValue <= max)) {
-      setIsValid(true);
+    if (isValid) {
       onChange(parsedValue);
-    } else {
-      setIsValid(false);
     }
-  }, [debouncedValue, onChange, min, max]);
+  }, [isValid, parsedValue, onChange]);
 
   return (
     <TextField
@@ -50,12 +48,23 @@ type NumberInputControlledProps = {
 export function NumberInputControlled({ min, max, onSubmit, realValue, debounce = 200, ...rest }: NumberInputControlledProps) {
   const [isValid, setIsValid] = useState(true);
   const [value, setValue] = useState(realValue.toString());
+  const [prevRealValue, setPrevRealValue] = useState(realValue);
   const timeoutRef = useRef<number | null>(null);
 
-  useEffect(() => {
+  // resync with the outside value during render rather than in an effect
+  if (realValue !== prevRealValue) {
+    setPrevRealValue(realValue);
     setValue(realValue.toString());
     setIsValid(true);
-  }, [realValue]);
+  }
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {

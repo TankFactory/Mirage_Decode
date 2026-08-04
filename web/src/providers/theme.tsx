@@ -175,9 +175,7 @@ function updateThemeMode(mode: ThemeMode) {
   });
 }
 
-function useThemeModeInitializer() {
-  const initMode = getInitialMode();
-  updateThemeMode(initMode);
-}
+// sync <body> class and palette with the resolved mode before anything renders
+updateThemeMode(useThemeStore.getState().mode);
 
-export { localThemeKey, useThemeModeInitializer, useThemeStore };
+export { localThemeKey, useThemeStore };

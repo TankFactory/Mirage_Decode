@@ -34,7 +34,8 @@ type DayNightToggleProps = {
 };
 
 export const DayNightToggle = ({ value, size, onChange }: DayNightToggleProps) => {
-  const [colldown, setColldown] = useState(false);
+  // only read inside event handlers, never rendered -- a ref avoids two renders per toggle
+  const colldownRef = useRef(false);
   // indicates whether the refs are assigned
   const [ready, setReady] = useState(false);
 
@@ -139,11 +140,14 @@ export const DayNightToggle = ({ value, size, onChange }: DayNightToggleProps) =
       stars.style.opacity = '1';
     }
 
-    setColldown(true);
+    colldownRef.current = true;
 
-    setTimeout(function () {
-      setColldown(false);
+    const timer = setTimeout(() => {
+      colldownRef.current = false;
     }, 500);
+    return () => {
+      clearTimeout(timer);
+    };
   }, [ready, value]);
 
   const handleMouseMove = useCallback(
@@ -284,10 +288,10 @@ export const DayNightToggle = ({ value, size, onChange }: DayNightToggleProps) =
         <div
           className={`${styles['main-button']} main-button`}
           onMouseMove={() => {
-            handleMouseMove(value === 'dark', colldown);
+            handleMouseMove(value === 'dark', colldownRef.current);
           }}
           onMouseOut={() => {
-            handleMouseOut(value === 'dark', colldown);
+            handleMouseOut(value === 'dark', colldownRef.current);
           }}
           ref={mainButtonRef}
         >

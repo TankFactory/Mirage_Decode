@@ -2,7 +2,8 @@ import { constructError } from '../utils/general';
 import { parseMimeType } from './image-mimetype';
 
 export interface ImageDecodeDataBase {
-  id: string;
+  // absent on init responses, which are not tied to a request
+  id?: string;
   success: boolean;
   error?: string;
 }
@@ -25,7 +26,7 @@ export interface ImageDecodeWorkerData {
   type: 'decode' | 'init';
   id: string;
   payload: {
-    fileData: ArrayBuffer;
+    fileData: ArrayBufferLike;
   };
 }
 
@@ -39,7 +40,7 @@ self.onmessage = (event) => {
   switch (data.type) {
     case 'init':
       if (isInited) {
-        postMessage({ success: true, payload: { decoderCount: decoders.length } } as ImageDecodeDataInit);
+        postMessage({ success: true, payload: { decoderCount: decoders.length } } satisfies ImageDecodeDataInit);
       }
       if (ImageDecoderImageDecoderImpl.isAvailable()) {
         try {
@@ -56,14 +57,14 @@ self.onmessage = (event) => {
         }
       }
       if (decoders.length === 0) {
-        postMessage({ success: false, error: 'No image decoder available' } as ImageDecodeDataBase);
+        postMessage({ success: false, error: 'No image decoder available' } satisfies ImageDecodeDataBase);
       }
       isInited = true;
-      postMessage({ success: true, payload: { decoderCount: decoders.length } } as ImageDecodeDataInit);
+      postMessage({ success: true, payload: { decoderCount: decoders.length } } satisfies ImageDecodeDataInit);
       break;
     case 'decode':
       if (!isInited) {
-        postMessage({ success: false, id: data.id, error: 'Worker is not initialized' } as ImageDecodeDataBase);
+        postMessage({ success: false, id: data.id, error: 'Worker is not initialized' } satisfies ImageDecodeDataBase);
       }
       messageQueue.push(data);
       if (!isProcessing) {
@@ -75,7 +76,7 @@ self.onmessage = (event) => {
               success: false,
               id: data.id,
               error: error instanceof Error ? error.message : 'Unknown error',
-            } as ImageDecodeDataBase);
+            } satisfies ImageDecodeDataBase);
           })
           .finally(() => {
             isProcessing = false;
@@ -104,7 +105,7 @@ async function processQueue() {
               height: imageData.height,
               data: imageData.data.buffer,
             },
-          } as ImageDecodeDataResult,
+          } satisfies ImageDecodeDataResult,
           {
             transfer: [imageData.data.buffer],
           }
@@ -116,7 +117,7 @@ async function processQueue() {
       }
     }
     if (!success) {
-      postMessage({ success: false, id, error: `Failed to decode image with mime type ${mimeType}` } as ImageDecodeDataBase);
+      postMessage({ success: false, id, error: `Failed to decode image with mime type ${mimeType}` } satisfies ImageDecodeDataBase);
     }
   }
 }

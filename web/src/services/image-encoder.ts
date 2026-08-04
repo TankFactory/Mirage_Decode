@@ -55,6 +55,9 @@ export async function initEncoderWorker() {
 
   worker.onmessage = (event) => {
     const data = event.data as ImageEncodeDataBase;
+    if (data.id === undefined) {
+      return;
+    }
     const handler = handlers[data.id];
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (handler) {
@@ -83,6 +86,6 @@ export async function encodeImage(imageData: ImageData, format: ImageEncodeForma
         reject(new Error(data.error || 'Unknown error during image encoding'));
       }
     });
-    worker!.postMessage({ type: 'encode', id, payload: { imageData, format } } as ImageEncodeWorkerData);
+    worker!.postMessage({ type: 'encode', id, payload: { imageData, format } } satisfies ImageEncodeWorkerData);
   });
 }
